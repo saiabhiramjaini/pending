@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { listLocalPayments, monthTotalIst, type LocalPayment, upsertLocalPayment } from "../lib/storage/payments";
 import { useApiSession } from "../lib/api/session";
-import { useCreatePayment, usePatchPayment, useTransactions } from "../hooks/api/useApiQuery";
+import { useCreatePayment, usePatchPayment, useTransactions } from "./api/useApiQuery";
 import { track } from "../lib/analytics";
 import type { PaymentStatus } from "../lib/storage/payments";
 

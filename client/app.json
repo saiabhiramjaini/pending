@@ -29,8 +29,18 @@
     },
     "android": {
       "package": "com.pending.app",
-      "permissions": ["CAMERA"],
+      "permissions": [
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
       "usesCleartextTraffic": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "df9382c2-09f8-4106-b1f8-44e3803bc244"
+      }
     }
   }
 }

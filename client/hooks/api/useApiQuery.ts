@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
-import { useApiSession } from "../lib/api/session";
-import type { ApiClient } from "../lib/api/client";
+import { useApiSession } from "../../lib/api/session";
+import type { ApiClient } from "../../lib/api/client";
 
 export function useApiQuery<T>(
   queryKey: readonly unknown[],
