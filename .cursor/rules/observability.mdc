@@ -1,0 +1,17 @@
+---
+description: Locked PostHog event names and Sentry scrubbing
+globs: client/lib/analytics.ts,client/**/*.{ts,tsx},server/src/**/*.ts
+alwaysApply: false
+---
+
+# Observability
+
+PostHog event names (do not invent new ones without updating `docs/AGENTS.md`):
+
+`scan_opened`, `qr_parsed`, `upi_app_selected`, `upi_launched`, `payment_returned`, `status_confirmed`, `transaction_recorded`.
+
+Identify `userId` after auth. Prefer merchant name + amount. Do not dump raw QR if it may include extra PII. Never send PIN/OTP.
+
+Sentry: Expo wrap + Express `errorHandler`. Scrub `Authorization`. No Datadog.
+
+Keys stay in env. `EXPO_PUBLIC_*` is public; `JWT_SECRET` and `DATABASE_URL` are server-only.

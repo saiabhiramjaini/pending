@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Pending",
+    "slug": "pending",
+    "scheme": "pending",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router",
+      "expo-camera",
+      "expo-secure-store",
+      "expo-font",
+      "expo-splash-screen"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.pending.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Scan UPI QR codes to pay.",
+        "LSApplicationQueriesSchemes": [
+          "phonepe",
+          "gpay",
+          "paytmmp",
+          "bhim",
+          "ppe",
+          "upi"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.pending.app",
+      "permissions": ["CAMERA"],
+      "usesCleartextTraffic": true
+    }
+  }
+}

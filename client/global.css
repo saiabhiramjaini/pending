@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter";
+  --paper: 246 247 244;
+  --ink: 11 15 12;
+  --ink-muted: 92 99 94;
+  --line: 226 230 225;
+  --surface: 255 255 255;
+  --lime: 200 245 74;
+  --success: 15 123 75;
+  --danger: 192 54 44;
+  --warning: 196 123 22;
+}
+
+.dark {
+  --paper: 11 15 12;
+  --ink: 246 247 244;
+  --ink-muted: 154 163 156;
+  --line: 36 42 38;
+  --surface: 22 27 23;
+  --lime: 200 245 74;
+  --success: 61 220 132;
+  --danger: 255 107 98;
+  --warning: 245 165 36;
+}
+
+/*
+  Semantic type. Use these in screens — never text-[20px] or fontFamily.
+  Scale: xs/caption 13, sm/body 16, md/title 20, lg/display 32.
+*/
+@layer components {
+  .type-caption {
+    @apply font-sans text-caption;
+  }
+  .type-label {
+    @apply font-sans text-caption font-medium;
+  }
+  .type-body {
+    @apply font-sans text-body;
+  }
+  .type-title {
+    @apply font-sans text-title font-semibold;
+  }
+  .type-display {
+    @apply font-sans text-display font-bold tabular-nums;
+  }
+  .type-amount {
+    @apply tabular-nums;
+  }
+}

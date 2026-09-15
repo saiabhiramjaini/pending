@@ -1,0 +1,10 @@
+export const API_PAGE_LIMIT = 50;
+export const BCRYPT_ROUNDS = 12;
+export const JWT_EXPIRES_IN = "7d";
+export const JWT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+export const MIN_AMOUNT_RUPEES = 1;
+export const MAX_AMOUNT_RUPEES = 100_000;
+export const PAY_DEBOUNCE_MS = 800;
+export const ABANDONED_LAUNCHED_MS = 15 * 60 * 1000;
+export const ABANDONED_CREATED_MS = 60 * 60 * 1000;
+export const TIMEZONE = "Asia/Kolkata";

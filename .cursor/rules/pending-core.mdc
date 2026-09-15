@@ -1,0 +1,28 @@
+---
+description: Binding product, stack, and docs for every Pending change
+alwaysApply: true
+---
+
+# Pending — always
+
+You are working on **Pending**, a UPI-first recorder. Read and obey `AGENTS.md` and `docs/AGENTS.md` before writing code.
+
+## Must
+
+- Follow `docs/IDEA.md`, `docs/TECH_STACK.md`, `docs/DESIGN.md`, `docs/STANDARDS.md`, `docs/ARCHITECTURE.md`.
+- Keep `client/` and `server/` as separate installs. Never add a root `package.json` workspace or root `node_modules`.
+- Returning from a UPI app is **not** SUCCESS unless the PSP result is explicit SUCCESS.
+- Never collect UPI PIN, OTP, or bank secrets. We are not a PSP.
+- PaymentAttempt ≠ Transaction (default type `unknown`).
+- Amounts are integer-rupee **strings**, ₹1–₹1,00,000. Totals use `Asia/Kolkata`.
+- If HTTP changes: edit `server/packages/api-contract` first.
+
+## Never add
+
+NestJS, Prisma, Datadog, Redis, Expo Go, Figma, Material/Paper, Geist, pay-by-VPA in v1, a second error JSON shape, a second page-size constant.
+
+## Layout
+
+- Screens: `client/app` — compose hooks + `components/ui` only. UI uses `type-*` token classes; never `text-[20px]` or hex.
+- API: Route → validate → Controller → Service → Repository → Drizzle.
+- Install: `cd server && bun install` / `cd client && bun install`.

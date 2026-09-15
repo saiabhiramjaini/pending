@@ -1,0 +1,32 @@
+---
+description: Ink + lime + Inter — token classes only, never px or hex in UI
+globs: client/{app,components,lib/design}/**/*.{tsx,ts,css,cjs}
+alwaysApply: false
+---
+
+# Design system
+
+Source of truth: `docs/DESIGN.md`. Values: `client/lib/design/tokens.cjs`. CSS vars: `client/global.css`. Tailwind: `client/tailwind.config.js`.
+
+## Forbidden in app/ and components/ui
+
+- `text-[20px]`, `min-h-[44px]`, `h-24`, `leading-10`, any `-[…px]`
+- Hex (`#C8F54A`) and `fontFamily`
+- `text-base`, `text-xl`, `text-2xl`, `rounded-xl`, `p-5` (not on our scale)
+- `style={{ fontSize, color, padding, margin }}` for visuals
+
+Need a new size? Add it to `tokens.cjs` first.
+
+## Type (prefer type-*)
+
+`type-caption` / `text-xs` = 13. `type-body` / `text-sm` = 16. `type-title` / `text-md` = 20. `type-display` / `text-lg` = 32 (Home total only). `type-label` = caption + medium. `type-amount` = `tabular-nums`.
+
+CTA = `bg-lime` + `text-ink`. Paid `success`, failed `danger`, unknown `warning`.
+
+Space: keys `0 1 2 3 4 6 8 12` only. Radius `sm md lg full`. Hit target `min-h-tap`. Disabled `opacity-disabled`.
+
+Tab bar / lucide: `chrome(scheme)` and `icon` from `lib/design/tokens.ts`.
+
+Primitives: Button, Card, Input, Screen, StatusBadge, EmptyState, ErrorState, ScreenSkeleton.
+
+Copy is locked in `docs/DESIGN.md`. No Figma. No second font or icon pack.

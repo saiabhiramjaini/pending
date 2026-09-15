@@ -1,0 +1,6 @@
+{
+  "name": "UpiHandoff",
+  "platforms": ["ios", "android"],
+  "ios": { "modules": ["UpiHandoffModule"] },
+  "android": { "modules": ["expo.modules.upihandoff.UpiHandoffModule"] }
+}

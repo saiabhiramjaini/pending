@@ -1,0 +1,45 @@
+---
+description: Express layered architecture, envelopes, AppError
+globs: server/src/**/*.ts
+alwaysApply: false
+---
+
+# Server architecture
+
+Pipeline (do not reorder):
+
+`json → cors → cookieParser → health/docs → routers → notFound → errorHandler`
+
+New endpoint:
+
+1. Zod in `server/packages/api-contract`
+2. Route: `authMiddleware`? + `validate(schema)` + `asyncHandler`
+3. Controller: call service, return `{ success: true, message, data }`
+4. Service: throw `AppError(status, code, message, details?)` — never `res`
+5. Repository: Drizzle only — never Express, never user-facing strings
+
+```ts
+// BAD — Drizzle in controller
+const rows = await db.select().from(users);
+
+// GOOD
+const user = await userRepository.findById(id);
+```
+
+```ts
+// BAD — catch 500 in every handler
+} catch (e) { res.status(500).json({ message: "Internal server error" }); }
+
+// GOOD
+export const get = asyncHandler(async (req, res) => { ... });
+```
+
+Error body always: `{ success: false, code, message, details: [] }`.
+
+Ownership: `row.userId === req.auth.userId` or `403 FORBIDDEN`.
+
+Lists: cursor + `API_PAGE_LIMIT` (50), newest first.
+
+Auth: Bearer then cookie. bcrypt 12. Strip `password`. Generic sign-in errors.
+
+Payment status transitions live only in `services/paymentStatus.ts`. Create attempt + transaction in one DB transaction. Idempotency `(userId, idempotencyKey)`.

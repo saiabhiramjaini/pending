@@ -1,0 +1,25 @@
+---
+description: UPI parse, native handoff, status honesty
+globs: client/lib/upi/**/*.ts,client/modules/upi-handoff/**/*,client/app/payment.tsx,client/app/(tabs)/scan.tsx,server/src/services/paymentStatus.ts
+alwaysApply: false
+---
+
+# UPI payments
+
+## Parse
+
+Only `client/lib/upi/parse.ts`. Require `upi://pay` and `pa`. Reject `am=0` and out-of-range amounts. Keep table tests in `parse.test.ts`. Screens must not parse QR strings themselves.
+
+## Handoff
+
+`client/modules/upi-handoff`: Kotlin lists `upi://pay` apps and uses activity result; Swift opens URL and returns `unknown`. TS wrapper in `lib/native`. PIN stays in PhonePe/GPay/etc.
+
+## Status
+
+Returning from the UPI app is **not** SUCCESS unless Android extras say SUCCESS. Otherwise `returned` / `unknown` and the confirm sheet: Paid / Failed / Cancelled.
+
+Copy: “Confirm in your UPI app.” Never a green check on return alone.
+
+Transitions: only `server/src/services/paymentStatus.ts`. Debounce Pay with `PAY_DEBOUNCE_MS` (800).
+
+No manual VPA screen in v1. Device proof: `docs/DEVICE_TEST.md` (not the emulator).

@@ -1,0 +1,18 @@
+---
+description: Zod is the API spec — OpenAPI is generated from it
+globs: server/packages/api-contract/**/*.ts
+alwaysApply: false
+---
+
+# API contract
+
+This package is the **source of truth** for HTTP.
+
+- Export Zod schemas and `z.infer` types. Do not add `as` casts for wire JSON.
+- Amounts: `amountRupeesSchema` (digit string, ₹1–₹1,00,000).
+- Keep `API_PAGE_LIMIT = 50` here. Do not copy `50` into features.
+- When adding a path, register it in `openapi.ts` so `/api/v1/docs` stays accurate.
+- Server `validate()` and client `unwrapSuccess()` must use these same schemas.
+- Do not introduce a second envelope. Success `{ success: true, message, data }`. Error `{ success: false, code, message, details }`.
+
+If a handler and this package disagree, **this package wins** — fix the handler.

@@ -1,0 +1,16 @@
+---
+description: Drizzle schema and repositories — no SQL in controllers
+globs: server/src/db/**/*.ts,server/src/repositories/**/*.ts
+alwaysApply: false
+---
+
+# Data layer
+
+- Schema lives in `server/src/db`. Repositories are the only callers of `db`.
+- Do not put Drizzle in routes, controllers, or services except passing repository results.
+- Creating a payment must insert `payment_attempts` and `transactions` (`type` default `unknown`) in **one** transaction.
+- Unique idempotency: `(userId, idempotencyKey)`.
+- Lists: cursor pagination, newest first. Never invent offset pagination.
+- Amounts stored as integer-rupee strings matching `amountRupeesSchema`.
+- Never log `password` hashes in application logs. Never return `password`.
+- Neon is the database. Do not add Prisma or a second ORM.

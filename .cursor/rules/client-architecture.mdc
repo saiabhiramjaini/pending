@@ -1,0 +1,41 @@
+---
+description: Expo screens, hooks, session, NativeWind, API client
+globs: client/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Client architecture
+
+## Layers
+
+- `app/` — screens only. No QR regex, no `fetch(EXPO_PUBLIC_API_URL)`, no SecureStore, no Drizzle.
+- `components/ui` — dumb. No API, no MMKV, no UPI parse.
+- `hooks/` — data and flow (`usePayments`, `useApiQuery`).
+- `lib/upi` — parse/build only (tested).
+- `lib/native` — wrap `upi-handoff`.
+- `lib/api` — `createApiClient`, `unwrapSuccess`, `ApiSessionProvider`.
+- `stores/` — Zustand `paymentDraft` (not URL params).
+
+## Session
+
+`ApiSessionProvider` status: `loading | signed_out | ready`. Authenticated queries: `enabled: status === "ready" && client !== null`. Query keys start with `"api"`. Sign-out clears `["api"]`. First sign-in calls `discardLocalPayments()`.
+
+```ts
+// BAD
+useEffect(() => { fetch(process.env.EXPO_PUBLIC_API_URL + "/api/v1/transactions"); }, []);
+
+// GOOD
+useApiQuery(["api", "transactions"], (client) => client.listTransactions());
+```
+
+JSON → types only via `unwrapSuccess` / `unwrapApiResponse`. No `as` on API bodies.
+
+Mutations: `retry: false`. 401 while signed in → `signOut`.
+
+Unsigned: MMKV only. Do not dual-write after sign-in.
+
+## UI
+
+NativeWind **token classes only** (`type-title`, `type-body`, `bg-lime`, `min-h-tap`). No `text-[20px]`, no hex, no extra `fontFamily`. Amounts `type-amount`. Empty/error/loading on Home and History. Copy from `docs/DESIGN.md`.
+
+Need a new size or color? Edit `client/lib/design/tokens.cjs` first, then use the class. Need a new visual? Extend `components/ui`, don’t invent a one-off card in the screen.
