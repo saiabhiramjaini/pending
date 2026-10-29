@@ -8,7 +8,8 @@ export const merchantRepository = {
     return rows[0] ?? null;
   },
   async create(values: { vpa: string; name: string }) {
-    const rows = await db.insert(merchants).values(values).returning();
+    const rows = await db.insert(merchants).values(values)
+      .onConflictDoUpdate({ target: merchants.vpa, set: { vpa: values.vpa } }).returning();
     return rows[0];
   },
 };

@@ -17,3 +17,30 @@ test("rejects invalid bodies", () => {
     unwrapSuccess(z.object({ status: z.literal("OK") }), { foo: 1 }, 200),
   ).toThrow(ApiError);
 });
+
+test("rejects a valid envelope containing invalid data", () => {
+  expect(() => unwrapSuccess(z.object({ status: z.literal("OK") }),
+    { success: true, message: "OK", data: { status: "BROKEN" } }, 200)).toThrow(ApiError);
+});
+
+test("keeps the HTTP status when a success envelope holds invalid data", () => {
+  try {
+    unwrapSuccess(z.object({ status: z.literal("OK") }),
+      { success: true, message: "OK", data: { status: "BROKEN" } }, 201);
+    throw new Error("Expected rejection");
+  } catch (error) {
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).status).toBe(201);
+  }
+});
+
+test("preserves authentication status for error envelopes", () => {
+  try {
+    unwrapSuccess(z.object({}),
+      { success: false, code: "UNAUTHORIZED", message: "Unauthorized", details: [] }, 401);
+    throw new Error("Expected rejection");
+  } catch (error) {
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).status).toBe(401);
+  }
+});

@@ -2,8 +2,10 @@ import { Tabs } from "expo-router";
 import { useColorScheme } from "react-native";
 import { Home, History, ScanLine } from "lucide-react-native";
 import { chrome, icon } from "../../lib/design/tokens";
+import { useResumePayment } from "../../hooks/useResumePayment";
 
 export default function TabsLayout() {
+  useResumePayment();
   const scheme = useColorScheme() === "dark" ? "dark" : "light";
   const palette = chrome(scheme);
   return (

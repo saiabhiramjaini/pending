@@ -1,4 +1,4 @@
-import { and, desc, eq, lt } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../db/connect";
 import { merchants, paymentAttempts, transactions } from "../db/schema";
 import type { PaymentStatus } from "@pending/api-contract";
@@ -28,7 +28,18 @@ export const paymentRepository = {
     idempotencyKey: string;
   }) {
     return db.transaction(async (tx) => {
-      const [attempt] = await tx.insert(paymentAttempts).values(values).returning();
+      const [inserted] = await tx.insert(paymentAttempts).values(values)
+        .onConflictDoNothing({ target: [paymentAttempts.userId, paymentAttempts.idempotencyKey] })
+        .returning();
+      if (!inserted) {
+        const [existing] = await tx.select().from(paymentAttempts).where(and(
+          eq(paymentAttempts.userId, values.userId),
+          eq(paymentAttempts.idempotencyKey, values.idempotencyKey),
+        ));
+        if (!existing) throw new Error("Idempotent payment not found");
+        return existing;
+      }
+      const attempt = inserted;
       await tx.insert(transactions).values({
         userId: values.userId,
         paymentAttemptId: attempt.id,
@@ -37,18 +48,20 @@ export const paymentRepository = {
       return attempt;
     });
   },
-  async updateStatus(id: string, status: PaymentStatus) {
+  async updateStatus(id: string, userId: string, previous: PaymentStatus, status: PaymentStatus) {
     const rows = await db
       .update(paymentAttempts)
       .set({ status, updatedAt: new Date() })
-      .where(eq(paymentAttempts.id, id))
+      .where(and(eq(paymentAttempts.id, id), eq(paymentAttempts.userId, userId),
+        eq(paymentAttempts.status, previous)))
       .returning();
     return rows[0];
   },
   async listTransactions(userId: string, limit: number, cursor?: string) {
     const filters = [eq(transactions.userId, userId)];
     if (cursor) {
-      filters.push(lt(transactions.createdAt, new Date(cursor)));
+      const [timestamp, id] = cursor.split("|");
+      filters.push(sql`(${transactions.createdAt}, ${transactions.id}) < (${timestamp}::timestamptz, ${id}::uuid)`);
     }
     const rows = await db
       .select({
@@ -60,6 +73,8 @@ export const paymentRepository = {
         amount: paymentAttempts.amount,
         status: paymentAttempts.status,
         createdAt: transactions.createdAt,
+        // Preserve PostgreSQL's full timestamp precision in the cursor.
+        cursorTimestamp: sql<string>`to_char(${transactions.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
         merchantName: merchants.name,
         vpa: merchants.vpa,
       })
@@ -67,7 +82,7 @@ export const paymentRepository = {
       .innerJoin(paymentAttempts, eq(transactions.paymentAttemptId, paymentAttempts.id))
       .innerJoin(merchants, eq(paymentAttempts.merchantId, merchants.id))
       .where(and(...filters))
-      .orderBy(desc(transactions.createdAt))
+      .orderBy(desc(transactions.createdAt), desc(transactions.id))
       .limit(limit + 1);
     return rows;
   },

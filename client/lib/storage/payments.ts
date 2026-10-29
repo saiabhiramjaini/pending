@@ -1,10 +1,5 @@
-export type PaymentStatus =
-  | "created"
-  | "upi_app_launched"
-  | "returned"
-  | "success"
-  | "failed"
-  | "unknown";
+import type { PaymentStatus } from "@pending/api-contract";
+export type { PaymentStatus } from "@pending/api-contract";
 
 export type LocalPayment = {
   id: string;
@@ -57,29 +52,4 @@ export function discardLocalPayments() {
   } catch {
     /* native store unavailable in tests */
   }
-}
-
-export function monthTotalIst(now = new Date()): string {
-  const thisMonth = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-  })
-    .format(now)
-    .slice(0, 7);
-  let sum = 0;
-  for (const row of listLocalPayments()) {
-    if (row.status !== "success") continue;
-    const rowMonth = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Asia/Kolkata",
-      year: "numeric",
-      month: "2-digit",
-    })
-      .format(new Date(row.createdAt))
-      .slice(0, 7);
-    if (rowMonth === thisMonth) {
-      sum += Number(row.amount);
-    }
-  }
-  return String(sum);
 }

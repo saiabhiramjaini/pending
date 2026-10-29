@@ -1,14 +1,8 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
 import { drizzle as drizzlePg } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-let cached: ReturnType<typeof drizzleNeon> | ReturnType<typeof drizzlePg> | null = null;
-
-function isNeonUrl(url: string) {
-  return url.includes("neon.tech") || url.includes("neon.build");
-}
+let cached: ReturnType<typeof drizzlePg<typeof schema>> | null = null;
 
 export function getDb() {
   if (cached) return cached;
@@ -16,10 +10,16 @@ export function getDb() {
   if (!url) {
     throw new Error("DATABASE_URL is required");
   }
-  cached = isNeonUrl(url)
-    ? drizzleNeon(neon(url), { schema })
-    : drizzlePg(postgres(url, { max: 4 }), { schema });
+  // Both Neon and local Postgres need interactive transactions for payment recording.
+  cached = drizzlePg(postgres(url, { max: 4 }), { schema });
   return cached;
+}
+
+export async function closeDb() {
+  if (cached) {
+    await cached.$client.end();
+    cached = null;
+  }
 }
 
 export const db = new Proxy({} as ReturnType<typeof getDb>, {

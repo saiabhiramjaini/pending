@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { MAX_AMOUNT_RUPEES, MIN_AMOUNT_RUPEES } from "./constants";
+import { API_PAGE_LIMIT, MAX_AMOUNT_RUPEES, MIN_AMOUNT_RUPEES } from "./constants";
 
 export const paymentStatusSchema = z.enum([
   "created",
@@ -92,9 +92,15 @@ export const patchPaymentBodySchema = z.object({
   status: paymentStatusSchema,
 });
 
+export const transactionCursorSchema = z.string().max(100).refine((value) => {
+  const [timestamp, id, extra] = value.split("|");
+  return extra === undefined && z.string().datetime().safeParse(timestamp).success &&
+    z.string().uuid().safeParse(id).success;
+}, "Invalid transaction cursor");
+
 export const listTransactionsQuerySchema = z.object({
-  cursor: z.string().optional(),
-  limit: z.coerce.number().int().min(1).max(50).optional(),
+  cursor: transactionCursorSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(API_PAGE_LIMIT).optional(),
 });
 
 export const envelopeSuccessSchema = <T extends z.ZodTypeAny>(data: T) =>
@@ -127,7 +133,7 @@ export const healthDataSchema = z.object({
 
 export const transactionListDataSchema = z.object({
   items: z.array(transactionSchema),
-  nextCursor: z.string().nullable(),
+  nextCursor: transactionCursorSchema.nullable(),
 });
 
 export type PaymentStatus = z.infer<typeof paymentStatusSchema>;

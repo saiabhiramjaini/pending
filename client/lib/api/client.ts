@@ -58,9 +58,9 @@ export function createApiClient(getToken: () => string | null, onUnauthorized: (
         body: JSON.stringify(patchPaymentBodySchema.parse(body)),
       }),
     getPayment: (id: string) => request(`/api/v1/payments/${id}`, paymentAttemptSchema),
-    listTransactions: (cursor?: string) => {
+    listTransactions: (cursor?: string, signal?: AbortSignal) => {
       const q = cursor ? `?cursor=${encodeURIComponent(cursor)}` : "";
-      return request(`/api/v1/transactions${q}`, transactionListDataSchema);
+      return request(`/api/v1/transactions${q}`, transactionListDataSchema, { signal });
     },
   };
 }

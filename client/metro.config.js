@@ -7,7 +7,6 @@ const contractRoot = path.resolve(projectRoot, "../server/packages/api-contract"
 
 const config = getDefaultConfig(projectRoot);
 config.watchFolders = [...(config.watchFolders ?? []), contractRoot];
-config.resolver.unstable_enableSymlinks = true;
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, "node_modules"),
   path.resolve(contractRoot, "node_modules"),

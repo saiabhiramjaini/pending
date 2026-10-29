@@ -26,7 +26,7 @@ export default function HomeScreen() {
       </View>
       <Card className="mt-6">
         <Text className="type-caption text-ink-muted">This month</Text>
-        <Text className="type-display mt-1 text-ink">₹{Number(total).toLocaleString("en-IN")}</Text>
+        <Text className="type-display type-amount mt-1 text-ink">₹{Number(total).toLocaleString("en-IN")}</Text>
       </Card>
       <View className="mt-6">
         <Button label="Scan & Pay" onPress={() => router.push("/(tabs)/scan")} />

@@ -25,8 +25,7 @@ export default function ScanScreen() {
       <CameraView
         className="flex-1"
         barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
-        barcodeScannerEnabled={scanning}
-        onBarcodeScanned={onBarcodeScanned}
+        onBarcodeScanned={scanning ? onBarcodeScanned : undefined}
       />
       {error ? (
         <View className="absolute bottom-8 left-4 right-4 rounded-md bg-surface p-4">

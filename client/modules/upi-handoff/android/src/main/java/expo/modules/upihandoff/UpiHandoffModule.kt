@@ -46,7 +46,7 @@ class UpiHandoffModule : Module() {
       }
     }
 
-    OnActivityResult { payload ->
+    OnActivityResult { _, payload ->
       if (payload.requestCode != requestCode) return@OnActivityResult
       val promise = pending ?: return@OnActivityResult
       pending = null

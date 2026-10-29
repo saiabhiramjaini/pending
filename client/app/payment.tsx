@@ -8,7 +8,7 @@ import { usePayHandoff } from "../hooks/usePayHandoff";
 
 export default function PaymentScreen() {
   const router = useRouter();
-  const { draft, setDraft, apps, busy, confirm, amountError, payError, pay, confirmStatus } =
+  const { draft, setDraft, apps, busy, confirm, pendingStatus, amountError, payError, pay, confirmStatus } =
     usePayHandoff();
 
   if (!draft) {
@@ -33,18 +33,24 @@ export default function PaymentScreen() {
         <Input
           label="Amount (₹)"
           value={draft.amount}
+          editable={!draft.localId && !busy}
           keyboardType="numeric"
           error={amountError}
           onChangeText={(amount) => setDraft({ ...draft, amount })}
         />
       </View>
       {payError ? <Text className="mt-3 type-caption text-danger">{payError}</Text> : null}
-      {confirm ? (
+      {pendingStatus ? (
+        <View className="mt-6 gap-3">
+          <Text className="type-body text-ink">Save the payment result before continuing.</Text>
+          <Button label="Retry saving" disabled={busy} onPress={() => void confirmStatus(pendingStatus)} />
+        </View>
+      ) : confirm ? (
         <View className="mt-6 gap-3">
           <Text className="type-body text-ink">Confirm in your UPI app</Text>
-          <Button label="Paid" onPress={() => void confirmStatus("success")} />
-          <Button label="Failed" variant="danger" onPress={() => void confirmStatus("failed")} />
-          <Button label="Cancelled" variant="secondary" onPress={() => void confirmStatus("unknown")} />
+          <Button label="Paid" disabled={busy} onPress={() => void confirmStatus("success")} />
+          <Button label="Failed" disabled={busy} variant="danger" onPress={() => void confirmStatus("failed")} />
+          <Button label="Cancelled" disabled={busy} variant="secondary" onPress={() => void confirmStatus("unknown")} />
         </View>
       ) : (
         <View className="mt-6 gap-3">

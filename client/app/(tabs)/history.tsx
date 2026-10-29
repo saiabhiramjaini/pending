@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { Screen } from "../../components/ui/Screen";
 import { Card } from "../../components/ui/Card";
 import { StatusBadge } from "../../components/ui/StatusBadge";
@@ -6,7 +6,7 @@ import { EmptyState, ErrorState, ScreenSkeleton } from "../../components/ui/Stat
 import { usePayments } from "../../hooks/usePayments";
 
 export default function HistoryScreen() {
-  const { items, loading, error, refresh } = usePayments();
+  const { items, loading, error, refresh, refreshing } = usePayments();
   if (loading) {
     return (
       <Screen>
@@ -31,9 +31,14 @@ export default function HistoryScreen() {
   return (
     <Screen>
       <Text className="type-title mb-4 text-ink">History</Text>
-      <View className="gap-3">
-        {items.map((row) => (
-          <Card key={row.id} className="flex-row items-center justify-between">
+      <FlatList
+        data={items}
+        keyExtractor={(row) => row.id}
+        onRefresh={() => void refresh()}
+        refreshing={refreshing}
+        ItemSeparatorComponent={() => <View className="h-3" />}
+        renderItem={({ item: row }) => (
+          <Card className="flex-row items-center justify-between">
             <View>
               <Text className="type-body font-medium text-ink">{row.merchantName}</Text>
               <Text className="type-caption text-ink-muted">{row.vpa}</Text>
@@ -43,8 +48,8 @@ export default function HistoryScreen() {
               <StatusBadge status={row.status} />
             </View>
           </Card>
-        ))}
-      </View>
+        )}
+      />
     </Screen>
   );
 }

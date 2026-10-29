@@ -9,6 +9,7 @@ import {
   createPaymentBodySchema,
   envelopeErrorSchema,
   healthDataSchema,
+  listTransactionsQuerySchema,
   patchPaymentBodySchema,
   paymentAttemptSchema,
   signinBodySchema,
@@ -104,6 +105,7 @@ registry.registerPath({
 registry.registerPath({
   method: "get",
   path: "/api/v1/transactions",
+  request: { query: listTransactionsQuerySchema },
   responses: {
     200: {
       description: "ok",

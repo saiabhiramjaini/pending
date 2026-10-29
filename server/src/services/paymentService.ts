@@ -43,7 +43,12 @@ export const paymentService = {
     if (!canTransition(row.status, status)) {
       throw new AppError(409, "CONFLICT", "Already updated");
     }
-    return paymentRepository.updateStatus(id, status);
+    const updated = await paymentRepository.updateStatus(id, userId, row.status, status);
+    if (updated) return updated;
+    const current = await this.get(userId, id);
+    // Retrying a committed status after a lost response is safe.
+    if (current.status === status) return current;
+    throw new AppError(409, "CONFLICT", "Payment changed. Refresh and try again.");
   },
   async list(userId: string, cursor?: string, limit = API_PAGE_LIMIT) {
     const rows = await paymentRepository.listTransactions(userId, limit, cursor);
@@ -63,7 +68,7 @@ export const paymentService = {
         status: row.status,
         createdAt: iso(row.createdAt),
       })),
-      nextCursor: hasMore && last ? iso(last.createdAt) : null,
+      nextCursor: hasMore && last ? `${last.cursorTimestamp}|${last.id}` : null,
     };
   },
 };

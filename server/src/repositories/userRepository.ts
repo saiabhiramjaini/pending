@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/connect";
-import { users } from "../db/schema";
+import { paymentAttempts, transactions, users } from "../db/schema";
 
 export const userRepository = {
   async findByEmail(email: string) {
@@ -16,6 +16,12 @@ export const userRepository = {
     return rows[0];
   },
   async deleteById(id: string) {
-    await db.delete(users).where(eq(users.id, id));
+    await db.transaction(async (tx) => {
+      // Lock the parent so new payments cannot race account deletion.
+      await tx.select({ id: users.id }).from(users).where(eq(users.id, id)).for("update");
+      await tx.delete(transactions).where(eq(transactions.userId, id));
+      await tx.delete(paymentAttempts).where(eq(paymentAttempts.userId, id));
+      await tx.delete(users).where(eq(users.id, id));
+    });
   },
 };

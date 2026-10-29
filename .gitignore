@@ -13,3 +13,4 @@ server/dist
 *.apk
 *.aab
 .eas
+.gradle

@@ -6,7 +6,7 @@ import { track } from "../lib/analytics";
 
 export function useScanUpi() {
   const router = useRouter();
-  const setDraft = usePaymentDraft((s) => s.setDraft);
+  const startDraft = usePaymentDraft((s) => s.startDraft);
   const [error, setError] = useState<string | null>(null);
   const locked = useRef(false);
   const [scanning, setScanning] = useState(true);
@@ -34,7 +34,7 @@ export function useScanUpi() {
       locked.current = true;
       setScanning(false);
       track("qr_parsed");
-      setDraft({
+      startDraft({
         vpa: parsed.vpa,
         merchantName: parsed.merchantName,
         amount: parsed.amount ?? "",
