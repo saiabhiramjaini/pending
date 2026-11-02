@@ -32,7 +32,7 @@ Return from the UPI app is not success by itself.
 
 ## HTTP
 
-Prefix `/api/v1`. Envelopes in `docs/AGENTS.md` §5.
+Prefix `/api/v1`. Envelopes in [`api-contract.md`](../.claude/rules/api-contract.md).
 
 Auth: `Authorization: Bearer`. Cookie optional for a future web client.
 
@@ -52,7 +52,7 @@ Payment draft: Zustand, not query params.
 Route → Middleware (auth, Zod) → Controller → Service → Repository → Drizzle → Neon
 ```
 
-See `docs/AGENTS.md` for ownership and the new-endpoint recipe.
+See [`server.md`](../.claude/rules/server.md) for ownership and the new-endpoint recipe.
 
 ## Client layers
 

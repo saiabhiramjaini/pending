@@ -37,4 +37,4 @@ See `server/README.md` and `docs/`.
 
 ## Agents
 
-AI coding agents **must** follow [`AGENTS.md`](AGENTS.md) and the handbook [`docs/AGENTS.md`](docs/AGENTS.md). Catalog: [`docs/RULES.md`](docs/RULES.md). Cursor rules: `.cursor/rules/`.
+AI coding agents **must** follow [`AGENTS.md`](AGENTS.md) and the path-scoped rules in [`.claude/rules/`](.claude/rules/).

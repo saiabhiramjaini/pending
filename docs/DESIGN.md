@@ -2,14 +2,7 @@
 
 Code-only. No Figma. **Hex and px exist in one place:** `client/lib/design/tokens.cjs` (copied into `client/global.css` as RGB channels). Tailwind maps those tokens in `client/tailwind.config.js`.
 
-Screens, layouts, and `components/ui` **must not** use:
-
-- arbitrary values (`text-[20px]`, `min-h-[44px]`, `h-24`, `leading-10`)
-- raw hex (`#C8F54A`, `#0B0F0C`)
-- extra `fontFamily` or `style={{ color / fontSize / padding / margin }}` for design
-- default Tailwind sizes we deleted (`text-base`, `text-xl`, `p-5`, `rounded-xl`)
-
-Need a new size? Add it to `tokens.cjs` first, then use the class.
+This file holds the values. The rules for using them are in [`design-system.md`](../.claude/rules/design-system.md).
 
 ## Type
 
@@ -22,17 +15,9 @@ Need a new size? Add it to `tokens.cjs` first, then use the class.
 | `type-display` / `text-lg` / `text-display` | | 32 / 40 | 700 | Home month total only |
 | `type-amount` | | (adds `tabular-nums`) | | Every rupee figure |
 
-Prefer **`type-*`**. `text-xs` … `text-lg` are the same scale (xs=caption, sm=body, md=title, lg=display). Do not use `text-base` / `text-xl` / `text-2xl`.
+`text-xs` … `text-lg` are the same scale (xs=caption, sm=body, md=title, lg=display).
 
-Inter only: 400 body, 500 labels, 600 titles/buttons, 700 display. Load fonts in `_layout` and keep splash until ready.
-
-```tsx
-// BAD
-<Text className="font-sans text-[20px] font-semibold text-ink">Pay</Text>
-
-// GOOD
-<Text className="type-title text-ink">Pay</Text>
-```
+Inter only: 400 body, 500 labels, 600 titles/buttons, 700 display.
 
 ## Color
 

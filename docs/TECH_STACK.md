@@ -33,4 +33,4 @@ Locked choices. Do not reopen NestJS, Prisma, Datadog, Expo Go, or Figma.
 
 Identity: display name **Pending**, Android `com.pending.app`, API prefix `/api/v1`.
 
-See `docs/DESIGN.md` for tokens, `docs/STANDARDS.md` for rules, `docs/ARCHITECTURE.md` and `docs/AGENTS.md` for agents. Root `AGENTS.md` is binding.
+See `docs/DESIGN.md` for tokens and `docs/ARCHITECTURE.md` for layers. Root `AGENTS.md` and `.claude/rules/` are binding.
