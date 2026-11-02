@@ -21,7 +21,7 @@ Inter only: 400 body, 500 labels, 600 titles/buttons, 700 display.
 
 ## Color
 
-CTA = `bg-lime` + `text-ink` (never white on lime). Paid `success`, failed `danger`, unknown `warning`.
+CTA = `bg-lime` + `text-on-lime` (never white on lime; `text-ink` turns light in dark mode). Paid `success`, failed `danger`, unknown `warning`.
 
 | Token class | Light | Dark |
 |---|---|---|
@@ -31,6 +31,7 @@ CTA = `bg-lime` + `text-ink` (never white on lime). Paid `success`, failed `dang
 | `line` | `#E2E6E1` | `#242A26` |
 | `surface` | `#FFFFFF` | `#161B17` |
 | `lime` | `#C8F54A` | `#C8F54A` |
+| `on-lime` | `#0B0F0C` | `#0B0F0C` |
 | `success` | `#0F7B4B` | `#3DDC84` |
 | `danger` | `#C0362C` | `#FF6B62` |
 | `warning` | `#C47B16` | `#F5A524` |
@@ -50,7 +51,7 @@ Do not invent `p-5`, `mt-7`, `h-16`, `rounded-xl`.
 
 ## Primitives
 
-`Button`, `Card`, `Input`, `Screen`, `StatusBadge`, `EmptyState`, `ErrorState`, `ScreenSkeleton`.
+`Button`, `Card`, `Chip`, `Input`, `Screen`, `ScreenHeader`, `StatusBadge`, `EmptyState`, `ErrorState`, `ScreenSkeleton`, `PaymentRow`, `BucketIcon`, `BucketPicker`, `BucketSheet`, `BucketBars`.
 
 Icons: `lucide-react-native` with `icon.size` and `icon.stroke` from tokens (24 / 2).
 

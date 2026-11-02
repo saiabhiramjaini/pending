@@ -10,6 +10,7 @@
   --line: 226 230 225;
   --surface: 255 255 255;
   --lime: 200 245 74;
+  --on-lime: 11 15 12;
   --success: 15 123 75;
   --danger: 192 54 44;
   --warning: 196 123 22;
@@ -22,9 +23,29 @@
   --line: 36 42 38;
   --surface: 22 27 23;
   --lime: 200 245 74;
+  --on-lime: 11 15 12;
   --success: 61 220 132;
   --danger: 255 107 98;
   --warning: 245 165 36;
+}
+
+/*
+  Android ignores most font weights on a single custom font, so each weight selects its own Inter file.
+  Tailwind's fontWeight plugin is off in tailwind.config.js so these are the only definitions.
+*/
+@layer utilities {
+  .font-medium {
+    font-family: "Inter_500Medium";
+    font-weight: 400;
+  }
+  .font-semibold {
+    font-family: "Inter_600SemiBold";
+    font-weight: 400;
+  }
+  .font-bold {
+    font-family: "Inter_700Bold";
+    font-weight: 400;
+  }
 }
 
 /*

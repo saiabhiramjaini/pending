@@ -57,4 +57,5 @@ Abandoned attempts become `unknown`, never `failed`: launched after `ABANDONED_L
 **The draft is Zustand persisted to MMKV, never URL params.** Android may kill the app while a UPI app is in front, so [`paymentDraft.ts`](../../client/stores/paymentDraft.ts) persists through `lib/storage/draft` and `useResumePayment` reopens a recorded payment that still needs its outcome.
 
 - A newer scan owns the draft, so write through `updateSession` and `clearSession`. An older in-flight payment must not overwrite it.
+- The amount and bucket lock once the draft has a retry key, because a retry returns the original attempt.
 - Save the retry key to the draft before any request can commit remotely, as [`records.ts`](../../client/lib/payments/records.ts) does.

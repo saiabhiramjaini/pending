@@ -8,15 +8,17 @@ type Props = {
   secureTextEntry?: boolean;
   error?: string;
   editable?: boolean;
+  maxLength?: number;
 };
 
-export function Input({ label, value, onChangeText, keyboardType = "default", secureTextEntry, error, editable = true }: Props) {
+export function Input({ label, value, onChangeText, keyboardType = "default", secureTextEntry, error, editable = true, maxLength }: Props) {
   return (
     <View className="gap-2">
       <Text className="type-label text-ink-muted">{label}</Text>
       <TextInput
         value={value}
         editable={editable}
+        maxLength={maxLength}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}

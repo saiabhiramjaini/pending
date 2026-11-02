@@ -27,6 +27,20 @@ export function useTransactions() {
   });
 }
 
+export function useSetTransactionBucket() {
+  const { client } = useApiSession();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { id: string; category: string }) => {
+      if (!client) throw new Error("Not signed in");
+      return client.setTransactionBucket(input.id, { category: input.category });
+    },
+    retry: false,
+    // The list is on screen when this runs, so reload it now.
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: TRANSACTIONS_KEY }),
+  });
+}
+
 export function useCreatePayment() {
   const { client } = useApiSession();
   const queryClient = useQueryClient();

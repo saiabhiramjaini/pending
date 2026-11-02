@@ -3,6 +3,7 @@ import {
   createPaymentBodySchema,
   listTransactionsQuerySchema,
   patchPaymentBodySchema,
+  patchTransactionBodySchema,
 } from "@pending/api-contract";
 import { z } from "zod";
 import { paymentController } from "../controllers/paymentController";
@@ -29,4 +30,10 @@ transactionRouter.get(
   "/",
   validate(listTransactionsQuerySchema, "query"),
   asyncHandler(paymentController.list),
+);
+transactionRouter.patch(
+  "/:id",
+  validate(idParams, "params"),
+  validate(patchTransactionBodySchema),
+  asyncHandler(paymentController.setBucket),
 );

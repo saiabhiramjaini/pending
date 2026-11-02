@@ -44,6 +44,16 @@ describe("payment recording", () => {
     expect(state.patches).toEqual([{ id: remoteId!, status: "success" }]);
   });
 
+  test("the chosen bucket is recorded both signed in and signed out", async () => {
+    const signedIn = recording(true);
+    await createPaymentRecord({ ...draft, bucket: "Food" }, "phonepe", signedIn.dependencies, rememberDraft);
+    expect(signedIn.creates[0].category).toBe("Food");
+    const signedOut = recording(false);
+    const { row } = await createPaymentRecord({ ...draft, bucket: "Food" }, "phonepe", signedOut.dependencies, rememberDraft);
+    expect(row.category).toBe("Food");
+    expect(signedOut.local[0].category).toBe("Food");
+  });
+
   test("unsigned payments use only local storage", async () => {
     const state = recording(false);
     const { row, remoteId } = await createPaymentRecord(draft, "phonepe", state.dependencies, rememberDraft);

@@ -22,6 +22,8 @@ Transaction     (interpretation: unknown | expense | transfer | refund | other)
 
 Never treat every UPI pay as an expense. Default `type = unknown`.
 
+A bucket is `Transaction.category`: the name the user tapped before paying. There is no bucket table, so a custom bucket exists from the first payment that uses it. Monthly totals count paid payments only.
+
 Status:
 
 ```text

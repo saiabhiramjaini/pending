@@ -9,6 +9,8 @@ export type LocalPayment = {
   currency: "INR";
   upiApp: string | null;
   note: string | null;
+  category: string | null;
+  transactionId?: string;
   status: PaymentStatus;
   createdAt: string;
   updatedAt: string;
@@ -35,7 +37,9 @@ function saveRaw(rows: LocalPayment[]) {
 }
 
 export function listLocalPayments(): LocalPayment[] {
-  return loadRaw().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return loadRaw()
+    .map((row) => ({ ...row, category: row.category ?? null }))
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
 export function upsertLocalPayment(row: LocalPayment) {

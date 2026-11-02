@@ -10,6 +10,7 @@ export function useScanUpi() {
   const [error, setError] = useState<string | null>(null);
   const locked = useRef(false);
   const [scanning, setScanning] = useState(true);
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     track("scan_opened");
@@ -18,10 +19,12 @@ export function useScanUpi() {
   useFocusEffect(
     useCallback(() => {
       locked.current = false;
+      setFocused(true);
       setScanning(true);
       setError(null);
       return () => {
         locked.current = true;
+        setFocused(false);
         setScanning(false);
       };
     }, []),
@@ -46,5 +49,5 @@ export function useScanUpi() {
     }
   };
 
-  return { error, onBarcodeScanned, scanning };
+  return { error, focused, onBarcodeScanned, scanning };
 }

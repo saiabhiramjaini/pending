@@ -16,6 +16,7 @@ const color = {
     line: swatch("#E2E6E1", 226, 230, 225),
     surface: swatch("#FFFFFF", 255, 255, 255),
     lime: swatch("#C8F54A", 200, 245, 74),
+    "on-lime": swatch("#0B0F0C", 11, 15, 12),
     success: swatch("#0F7B4B", 15, 123, 75),
     danger: swatch("#C0362C", 192, 54, 44),
     warning: swatch("#C47B16", 196, 123, 22),
@@ -27,6 +28,7 @@ const color = {
     line: swatch("#242A26", 36, 42, 38),
     surface: swatch("#161B17", 22, 27, 23),
     lime: swatch("#C8F54A", 200, 245, 74),
+    "on-lime": swatch("#0B0F0C", 11, 15, 12),
     success: swatch("#3DDC84", 61, 220, 132),
     danger: swatch("#FF6B62", 255, 107, 98),
     warning: swatch("#F5A524", 245, 165, 36),
@@ -60,7 +62,9 @@ const radius = {
 };
 
 const tap = 44;
-const icon = { size: 24, stroke: 2 };
+const icon = { size: 24, small: 16, stroke: 2 };
+const scanFrame = 256;
+const sheetMaxHeight = 560;
 const skeleton = { sm: 64, lg: 96 };
 const opacity = { disabled: 0.5 };
 
@@ -93,6 +97,7 @@ function spacingTheme() {
   out.tap = px(tap);
   out.skeleton = px(skeleton.sm);
   out["skeleton-lg"] = px(skeleton.lg);
+  out.frame = px(scanFrame);
   return out;
 }
 
@@ -113,6 +118,8 @@ module.exports = {
   tap,
   icon,
   skeleton,
+  scanFrame,
+  sheetMaxHeight,
   opacity,
   px,
   fontSizeTheme,

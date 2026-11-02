@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { buildUpiPayUri, MAX_AMOUNT_RUPEES, MIN_AMOUNT_RUPEES } from "../lib/upi/parse";
 import { listUpiApps, launchUpiPay, type UpiApp } from "../lib/native/upi";
 import { usePaymentDraft } from "../stores/paymentDraft";
-import { persistStatus, usePaymentRecorder } from "./usePayments";
+import { persistStatus, useKnownPayments, usePaymentRecorder } from "./usePayments";
 import { PAY_DEBOUNCE_MS } from "@pending/api-contract";
 import type { LocalPayment, PaymentStatus } from "../lib/storage/payments";
 import { createPaymentRecord } from "../lib/payments/records";
+import { bucketOptions, normalizeBucket, suggestBucket } from "../lib/payments/buckets";
 import type { PaymentDraft } from "../stores/paymentDraft";
 
 const ERROR_COPY = "Something went wrong. Try again.";
@@ -23,6 +24,7 @@ export function usePayHandoff() {
   const updateSession = usePaymentDraft((s) => s.updateSession);
   const clearSession = usePaymentDraft((s) => s.clearSession);
   const recorder = usePaymentRecorder();
+  const known = useKnownPayments();
   const [apps, setApps] = useState<UpiApp[]>([]);
   const [busy, setBusy] = useState(false);
   const [confirm, setConfirm] = useState(!!draft?.handoffStarted);
@@ -30,6 +32,7 @@ export function usePayHandoff() {
   const [pendingStatus, setPendingStatus] = useState<PaymentStatus | undefined>(draft?.pendingStatus);
   const [amountError, setAmountError] = useState<string | undefined>();
   const [payError, setPayError] = useState<string | undefined>();
+  const [bucketError, setBucketError] = useState<string | undefined>();
   const lastPay = useRef(0);
   const locked = useRef(false);
   const draftRef = useRef(draft);
@@ -41,6 +44,22 @@ export function usePayHandoff() {
   }, []);
 
   useEffect(() => { draftRef.current = draft; }, [draft]);
+
+  // Offer last time's bucket for this UPI ID, so a repeat payment needs no extra tap.
+  useEffect(() => {
+    if (!draft || draft.bucket || draft.localId) return;
+    const suggestion = suggestBucket(known, draft.vpa);
+    if (suggestion) updateSession({ ...draft, bucket: suggestion });
+  }, [draft, known, updateSession]);
+
+  const bucketChoices = useMemo(() => bucketOptions(known, draft?.bucket), [known, draft?.bucket]);
+
+  const chooseBucket = (name: string) => {
+    const bucket = normalizeBucket(name);
+    if (!draft || !bucket || draft.localId) return;
+    updateSession({ ...draft, bucket });
+    setBucketError(undefined);
+  };
 
   const updateDraft = (next: PaymentDraft) => {
     if (!updateSession(next)) throw new Error(ERROR_COPY);
@@ -90,6 +109,10 @@ export function usePayHandoff() {
     if (Date.now() - lastPay.current < PAY_DEBOUNCE_MS) return;
     lastPay.current = Date.now();
     if (!draft || !amountOk()) return;
+    if (!draft.bucket) {
+      setBucketError("Choose what this payment is for.");
+      return;
+    }
     recorder.track("upi_app_selected", { app: app.name });
     locked.current = true;
     setBusy(true);
@@ -167,6 +190,9 @@ export function usePayHandoff() {
     confirm,
     pendingStatus,
     amountError,
+    bucketChoices,
+    bucketError,
+    chooseBucket,
     payError,
     pay,
     confirmStatus,

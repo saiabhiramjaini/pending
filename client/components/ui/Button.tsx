@@ -14,7 +14,7 @@ export function Button({ label, onPress, variant = "primary", disabled }: Props)
       : variant === "danger"
         ? "bg-danger"
         : "bg-surface border border-line";
-  const text = variant === "primary" ? "text-ink" : variant === "danger" ? "text-paper" : "text-ink";
+  const text = variant === "primary" ? "text-on-lime" : variant === "danger" ? "text-paper" : "text-ink";
   return (
     <Pressable
       accessibilityRole="button"

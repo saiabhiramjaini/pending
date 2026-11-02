@@ -1,4 +1,4 @@
-import type { CreatePaymentBody, PaymentAttempt, PaymentStatus } from "@pending/api-contract";
+import type { CreatePaymentBody, PaymentAttempt, PaymentStatus, Transaction } from "@pending/api-contract";
 import type { LocalPayment } from "../storage/payments";
 import type { PaymentDraft } from "../../stores/paymentDraft";
 
@@ -23,6 +23,7 @@ export async function createPaymentRecord(
   const row: LocalPayment = {
     id: stable.localId, vpa: draft.vpa, merchantName: draft.merchantName,
     amount: draft.amount, currency: "INR", upiApp, note: draft.note ?? null,
+    category: draft.bucket ?? null,
     status: "created", createdAt: now, updatedAt: now,
   };
   if (!dependencies.signedIn) {
@@ -34,9 +35,18 @@ export async function createPaymentRecord(
     : await dependencies.createRemote({
         vpa: row.vpa, merchantName: row.merchantName, amount: row.amount,
         currency: "INR", upiApp: upiApp ?? undefined, note: row.note ?? undefined,
+        category: row.category ?? undefined,
         idempotencyKey: row.id,
       });
   return { row, remoteId: created.id, draft: stable };
+}
+
+export function toPaymentRow(row: Transaction): LocalPayment {
+  return {
+    id: row.paymentAttemptId, transactionId: row.id, vpa: row.vpa, merchantName: row.merchantName,
+    amount: row.amount, currency: "INR", upiApp: null, note: null, category: row.category,
+    status: row.status, createdAt: row.createdAt, updatedAt: row.createdAt,
+  };
 }
 
 export async function persistPaymentStatus(

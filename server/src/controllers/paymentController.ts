@@ -16,6 +16,11 @@ export const paymentController = {
     const row = await paymentService.patch(req.auth!.userId, id, req.body.status);
     res.status(200).json({ success: true, message: "OK", data: serialize(row) });
   },
+  async setBucket(req: Request, res: Response) {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const data = await paymentService.setBucket(req.auth!.userId, id, req.body.category);
+    res.status(200).json({ success: true, message: "OK", data });
+  },
   async list(req: Request, res: Response) {
     const data = await paymentService.list(
       req.auth!.userId,

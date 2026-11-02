@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupBodySchema, type SignupBody } from "@pending/api-contract";
 import { Screen } from "../../components/ui/Screen";
 import { Input } from "../../components/ui/Input";
+import { ScreenHeader } from "../../components/ui/ScreenHeader";
 import { Button } from "../../components/ui/Button";
 import { useApiSession } from "../../lib/api/session";
 import { ApiError } from "../../lib/api/errors";
@@ -17,8 +18,8 @@ export default function SignupScreen() {
   const form = useForm<SignupBody>({ resolver: zodResolver(signupBodySchema) });
 
   return (
-    <Screen>
-      <Text className="type-title mb-6 text-ink">Create account</Text>
+    <Screen scroll>
+      <ScreenHeader title="Create account" subtitle="Keep your payments across devices" onBack={() => router.back()} />
       <View className="gap-4">
         <Controller
           control={form.control}

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { API_PAGE_LIMIT, MAX_AMOUNT_RUPEES, MIN_AMOUNT_RUPEES } from "./constants";
+import { API_PAGE_LIMIT, MAX_AMOUNT_RUPEES, MAX_BUCKET_LENGTH, MIN_AMOUNT_RUPEES } from "./constants";
 
 export const paymentStatusSchema = z.enum([
   "created",
@@ -25,6 +25,8 @@ export const amountRupeesSchema = z
     const n = Number(value);
     return n >= MIN_AMOUNT_RUPEES && n <= MAX_AMOUNT_RUPEES;
   }, `Amount must be between ₹${MIN_AMOUNT_RUPEES} and ₹${MAX_AMOUNT_RUPEES}`);
+
+export const bucketNameSchema = z.string().trim().min(1).max(MAX_BUCKET_LENGTH);
 
 export const signupBodySchema = z.object({
   name: z.string().min(1).max(80),
@@ -85,11 +87,16 @@ export const createPaymentBodySchema = z.object({
   currency: z.literal("INR").default("INR"),
   upiApp: z.string().optional(),
   note: z.string().max(120).optional(),
+  category: bucketNameSchema.optional(),
   idempotencyKey: z.string().uuid(),
 });
 
 export const patchPaymentBodySchema = z.object({
   status: paymentStatusSchema,
+});
+
+export const patchTransactionBodySchema = z.object({
+  category: bucketNameSchema,
 });
 
 export const transactionCursorSchema = z.string().max(100).refine((value) => {
@@ -142,6 +149,7 @@ export type SignupBody = z.infer<typeof signupBodySchema>;
 export type SigninBody = z.infer<typeof signinBodySchema>;
 export type CreatePaymentBody = z.infer<typeof createPaymentBodySchema>;
 export type PatchPaymentBody = z.infer<typeof patchPaymentBodySchema>;
+export type PatchTransactionBody = z.infer<typeof patchTransactionBodySchema>;
 export type PaymentAttempt = z.infer<typeof paymentAttemptSchema>;
 export type Transaction = z.infer<typeof transactionSchema>;
 export type UserPublic = z.infer<typeof userPublicSchema>;

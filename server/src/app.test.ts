@@ -1,5 +1,14 @@
 import { describe, expect, test } from "bun:test";
+import { bucketNameSchema, MAX_BUCKET_LENGTH } from "@pending/api-contract";
 import { createApp } from "./app";
+
+describe("bucket names", () => {
+  test("are trimmed and limited to the contract length", () => {
+    expect(bucketNameSchema.parse("  Food  ")).toBe("Food");
+    expect(bucketNameSchema.safeParse("   ").success).toBe(false);
+    expect(bucketNameSchema.safeParse("x".repeat(MAX_BUCKET_LENGTH + 1)).success).toBe(false);
+  });
+});
 
 describe("api scaffold", () => {
   test("GET /api/v1/health", async () => {

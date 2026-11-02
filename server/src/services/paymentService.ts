@@ -1,4 +1,9 @@
-import { API_PAGE_LIMIT, type CreatePaymentBody, type PaymentStatus } from "@pending/api-contract";
+import {
+  API_PAGE_LIMIT,
+  type CreatePaymentBody,
+  type PaymentStatus,
+  type TransactionType,
+} from "@pending/api-contract";
 import { AppError } from "../errors/AppError";
 import { merchantRepository } from "../repositories/merchantRepository";
 import { paymentRepository } from "../repositories/paymentRepository";
@@ -6,6 +11,32 @@ import { canTransition } from "./paymentStatus";
 
 function iso(value: Date | string) {
   return value instanceof Date ? value.toISOString() : String(value);
+}
+
+function toTransaction(row: {
+  id: string;
+  userId: string;
+  paymentAttemptId: string;
+  type: TransactionType;
+  category: string | null;
+  amount: string;
+  merchantName: string;
+  vpa: string;
+  status: PaymentStatus;
+  createdAt: Date | string;
+}) {
+  return {
+    id: row.id,
+    userId: row.userId,
+    paymentAttemptId: row.paymentAttemptId,
+    type: row.type,
+    category: row.category,
+    amount: String(row.amount),
+    merchantName: row.merchantName,
+    vpa: row.vpa,
+    status: row.status,
+    createdAt: iso(row.createdAt),
+  };
 }
 
 export const paymentService = {
@@ -25,6 +56,7 @@ export const paymentService = {
       currency: body.currency ?? "INR",
       upiApp: body.upiApp,
       note: body.note,
+      category: body.category,
       idempotencyKey: body.idempotencyKey,
     });
   },
@@ -50,24 +82,24 @@ export const paymentService = {
     if (current.status === status) return current;
     throw new AppError(409, "CONFLICT", "Payment changed. Refresh and try again.");
   },
+  async setBucket(userId: string, id: string, category: string) {
+    const row = await paymentRepository.findTransactionById(id);
+    if (!row) {
+      throw new AppError(404, "NOT_FOUND", "Transaction not found");
+    }
+    if (row.userId !== userId) {
+      throw new AppError(403, "FORBIDDEN", "You can't do that");
+    }
+    await paymentRepository.updateCategory(id, userId, category);
+    return toTransaction({ ...row, category });
+  },
   async list(userId: string, cursor?: string, limit = API_PAGE_LIMIT) {
     const rows = await paymentRepository.listTransactions(userId, limit, cursor);
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, limit) : rows;
     const last = page[page.length - 1];
     return {
-      items: page.map((row) => ({
-        id: row.id,
-        userId: row.userId,
-        paymentAttemptId: row.paymentAttemptId,
-        type: row.type,
-        category: row.category,
-        amount: String(row.amount),
-        merchantName: row.merchantName,
-        vpa: row.vpa,
-        status: row.status,
-        createdAt: iso(row.createdAt),
-      })),
+      items: page.map(toTransaction),
       nextCursor: hasMore && last ? `${last.cursorTimestamp}|${last.id}` : null,
     };
   },

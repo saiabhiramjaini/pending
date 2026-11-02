@@ -5,6 +5,7 @@ module.exports = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   darkMode: "class",
   presets: [require("nativewind/preset")],
+  corePlugins: { fontWeight: false },
   theme: {
     fontSize: tokens.fontSizeTheme(),
     spacing: tokens.spacingTheme(),
@@ -21,6 +22,15 @@ module.exports = {
         sans: ["Inter"],
       },
       minHeight: {
+        tap: tokens.px(tokens.tap),
+      },
+      minWidth: {
+        tap: tokens.px(tokens.tap),
+      },
+      maxHeight: {
+        sheet: tokens.px(tokens.sheetMaxHeight),
+      },
+      width: {
         tap: tokens.px(tokens.tap),
       },
       height: {

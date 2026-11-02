@@ -2,7 +2,24 @@
 
 Emulators and Expo Go cannot do this. Use a **physical Android** with PhonePe and GPay (or Paytm / BHIM).
 
-On this Mac, build the APK with **EAS** (cloud or local).
+On this Mac, build the APK with **EAS** (cloud or local). For day-to-day work, use the dev build below instead.
+
+## Live development (dev build + Metro)
+
+Plug the phone in over USB with USB debugging on, and start the API, then:
+
+```bash
+cd client
+bun run dev:android   # first time and after native changes
+bun run start         # every other time; open Pending on the phone
+```
+
+`dev:android` builds only for the connected phone's CPU, installs the app and starts Metro. JS and TS edits then
+appear on the phone through Fast Refresh. Rebuild with `dev:android` after changing Kotlin or Swift, `app.json`,
+or a native dependency, and restart Metro after changing `client/.env`.
+
+The dev build reads `EXPO_PUBLIC_API_URL` from `client/.env`, not `client/eas.json`, and it does not replace the
+preview APK for a final check: only the APK runs without Metro.
 
 ## Phone (do this first)
 

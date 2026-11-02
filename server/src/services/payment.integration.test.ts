@@ -34,7 +34,7 @@ integration("Postgres payment integrity", () => {
     return id;
   }
 
-  async function create(userId: string, overrides: { vpa?: string; idempotencyKey?: string; note?: string } = {}) {
+  async function create(userId: string, overrides: { vpa?: string; idempotencyKey?: string; note?: string; category?: string } = {}) {
     const row = await paymentService.create(userId, {
       merchantName: "Integration shop", vpa: `${crypto.randomUUID()}@upi`, amount: "100",
       currency: "INR", idempotencyKey: crypto.randomUUID(), ...overrides,
@@ -166,6 +166,21 @@ integration("Postgres payment integrity", () => {
     expect(await paymentRepository.findById(otherPayment.id)).not.toBeNull();
     expect(await db.select().from(transactions).where(and(eq(transactions.userId, otherId),
       eq(transactions.paymentAttemptId, otherPayment.id)))).toHaveLength(1);
+  });
+
+  test("a bucket is saved with the payment and can be changed by its owner only", async () => {
+    const userId = await owner();
+    const other = await owner();
+    await create(userId, { category: "Food" });
+    const { items: [saved] } = await paymentService.list(userId);
+    expect(saved.category).toBe("Food");
+    expect(saved.type).toBe("unknown");
+    await expect(paymentService.setBucket(other, saved.id, "Fun")).rejects.toMatchObject({ code: "FORBIDDEN" });
+    const updated = await paymentService.setBucket(userId, saved.id, "Trips");
+    expect(updated.category).toBe("Trips");
+    const { items: [reloaded] } = await paymentService.list(userId);
+    expect(reloaded.category).toBe("Trips");
+    await expect(paymentService.setBucket(userId, crypto.randomUUID(), "Fun")).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 
   test("ownership prevents reading or changing another user's payment", async () => {

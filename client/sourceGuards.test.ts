@@ -51,6 +51,12 @@ describe("layers", () => {
     expect(offenders(sourceFiles(UI), pattern)).toEqual([]);
   });
 
+  // These compile fine, but NativeWind only styles components it registers, so the class silently does nothing.
+  test("className is not passed to third-party components NativeWind ignores", () => {
+    const pattern = /<(CameraView|GestureHandlerRootView)\b[^>]*\bclassName/g;
+    expect(offenders(sourceFiles(UI), pattern)).toEqual([]);
+  });
+
   test("primitives stay dumb", () => {
     const pattern = /^import (?!type )[^\n]*from "[^"]*\/(lib\/(api|storage|upi|native)|hooks|stores)\b[^"]*"/gm;
     expect(offenders(sourceFiles(["components/ui"]), pattern)).toEqual([]);
@@ -60,9 +66,9 @@ describe("layers", () => {
     expect(offenders(sourceFiles(SOURCE, ["lib/analytics.ts"]), /from "posthog-react-native"/g)).toEqual([]);
   });
 
-  // Nothing in the device runtime polyfills global crypto; bun tests have it, so they cannot catch this.
-  test("IDs come from expo-crypto, not global crypto", () => {
-    expect(offenders(sourceFiles(SOURCE), /\bcrypto\.\w+/g)).toEqual([]);
+  // Nothing in the device runtime provides these; bun tests have them, so they cannot catch this.
+  test("code avoids web APIs missing from the device runtime", () => {
+    expect(offenders(sourceFiles(SOURCE), /\bcrypto\.\w+|\.throwIfAborted\(/g)).toEqual([]);
   });
 
   test("API JSON is never cast", () => {
@@ -73,6 +79,12 @@ describe("layers", () => {
 test("any carries a same-line reason", () => {
   const pattern = /^(?!.*\/\/ any:).*(:\s*any\b|\bas any\b|<any>).*$/gm;
   expect(offenders(sourceFiles(SOURCE), pattern)).toEqual([]);
+});
+
+// A second copy registers styles where components never read them, so every className silently does nothing.
+test("NativeWind has a single copy of react-native-css-interop", () => {
+  const lock = readFileSync(join(root, "bun.lock"), "utf8");
+  expect(lock).not.toContain('"nativewind/react-native-css-interop"');
 });
 
 test("package.json has no banned dependency", () => {

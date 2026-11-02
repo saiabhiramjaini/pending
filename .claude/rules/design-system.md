@@ -33,16 +33,16 @@ Ink + lime + Inter, in code only. The values and locked copy are in [docs/DESIGN
 **Use `type-*` for text.** `text-xs` to `text-lg` are aliases of the same scale. No screen uses them, so do not start.
 
 - `type-display` is only for the Home month total. Every rupee figure uses `type-amount` for tabular numbers.
-- A CTA is `bg-lime` with `text-ink`, never white on lime.
+- A CTA is `bg-lime` with `text-on-lime`, never white on lime. `text-ink` turns light in dark mode.
 - Paid is `success`, failed is `danger`, unknown is `warning`.
 - Hit targets are `min-h-tap`. Disabled controls use `opacity-disabled`.
 
 ## Reuse the primitives
 
-`Button`, `Card`, `Input`, `Screen`, `StatusBadge`, `EmptyState`, `ErrorState`, `ScreenSkeleton`. Extend these; do not build a one-off card in a screen file.
+`Button`, `Card`, `Chip`, `Input`, `Screen`, `ScreenHeader`, `StatusBadge`, `EmptyState`, `ErrorState`, `ScreenSkeleton`, `PaymentRow`, `BucketIcon`, `BucketPicker`, `BucketSheet`, `BucketBars`. Extend these; do not build a one-off card in a screen file.
 
 - Icons are `lucide-react-native` sized with `icon` from [`tokens.ts`](../../client/lib/design/tokens.ts). The tab bar and other native chrome that cannot take a class use `chrome(scheme)`.
 - Tabs are Home | Scan | History. Payment is a stack screen.
-- Dark mode is `.dark` on the root plus `useColorScheme`. Keep the splash up until fonts load.
+- Dark mode is `.dark` on the root `View` plus `useColorScheme`. `GestureHandlerRootView` and `CameraView` ignore `className`, which `sourceGuards.test.ts` enforces; size them with `style`. Keep the splash up until fonts load.
 
 **Empty, error and unknown-status copy is locked** in [docs/DESIGN.md](../../docs/DESIGN.md#copy). Do not write new or cheeky versions.

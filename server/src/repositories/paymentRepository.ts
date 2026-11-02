@@ -3,6 +3,19 @@ import { db } from "../db/connect";
 import { merchants, paymentAttempts, transactions } from "../db/schema";
 import type { PaymentStatus } from "@pending/api-contract";
 
+const transactionFields = {
+  id: transactions.id,
+  userId: transactions.userId,
+  paymentAttemptId: transactions.paymentAttemptId,
+  type: transactions.type,
+  category: transactions.category,
+  amount: paymentAttempts.amount,
+  status: paymentAttempts.status,
+  createdAt: transactions.createdAt,
+  merchantName: merchants.name,
+  vpa: merchants.vpa,
+};
+
 export const paymentRepository = {
   async findByIdempotency(userId: string, idempotencyKey: string) {
     const rows = await db
@@ -25,10 +38,12 @@ export const paymentRepository = {
     currency: string;
     upiApp?: string;
     note?: string;
+    category?: string;
     idempotencyKey: string;
   }) {
+    const { category, ...attemptValues } = values;
     return db.transaction(async (tx) => {
-      const [inserted] = await tx.insert(paymentAttempts).values(values)
+      const [inserted] = await tx.insert(paymentAttempts).values(attemptValues)
         .onConflictDoNothing({ target: [paymentAttempts.userId, paymentAttempts.idempotencyKey] })
         .returning();
       if (!inserted) {
@@ -44,6 +59,7 @@ export const paymentRepository = {
         userId: values.userId,
         paymentAttemptId: attempt.id,
         type: "unknown",
+        category,
       });
       return attempt;
     });
@@ -57,6 +73,22 @@ export const paymentRepository = {
       .returning();
     return rows[0];
   },
+  async findTransactionById(id: string) {
+    const rows = await db
+      .select(transactionFields)
+      .from(transactions)
+      .innerJoin(paymentAttempts, eq(transactions.paymentAttemptId, paymentAttempts.id))
+      .innerJoin(merchants, eq(paymentAttempts.merchantId, merchants.id))
+      .where(eq(transactions.id, id))
+      .limit(1);
+    return rows[0] ?? null;
+  },
+  async updateCategory(id: string, userId: string, category: string) {
+    await db
+      .update(transactions)
+      .set({ category, updatedAt: new Date() })
+      .where(and(eq(transactions.id, id), eq(transactions.userId, userId)));
+  },
   async listTransactions(userId: string, limit: number, cursor?: string) {
     const filters = [eq(transactions.userId, userId)];
     if (cursor) {
@@ -65,18 +97,9 @@ export const paymentRepository = {
     }
     const rows = await db
       .select({
-        id: transactions.id,
-        userId: transactions.userId,
-        paymentAttemptId: transactions.paymentAttemptId,
-        type: transactions.type,
-        category: transactions.category,
-        amount: paymentAttempts.amount,
-        status: paymentAttempts.status,
-        createdAt: transactions.createdAt,
+        ...transactionFields,
         // Preserve PostgreSQL's full timestamp precision in the cursor.
         cursorTimestamp: sql<string>`to_char(${transactions.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"')`,
-        merchantName: merchants.name,
-        vpa: merchants.vpa,
       })
       .from(transactions)
       .innerJoin(paymentAttempts, eq(transactions.paymentAttemptId, paymentAttempts.id))

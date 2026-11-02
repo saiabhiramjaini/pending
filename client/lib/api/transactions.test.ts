@@ -42,6 +42,15 @@ test("stops fetching when the session cancels the query", async () => {
   expect(calls).toBe(1);
 });
 
+test("loads with a device AbortSignal, which has no throwIfAborted", async () => {
+  const signal = { aborted: false } as AbortSignal;
+  const result = await listAllTransactions(
+    { listTransactions: async () => ({ items: [], nextCursor: null }) },
+    signal,
+  );
+  expect(result.items).toEqual([]);
+});
+
 test("rejects a repeated cursor instead of looping forever", async () => {
   await expect(listAllTransactions({ listTransactions: async () => ({
     items: [], nextCursor: "same",

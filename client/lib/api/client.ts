@@ -4,10 +4,13 @@ import {
   createPaymentBodySchema,
   paymentAttemptSchema,
   patchPaymentBodySchema,
+  patchTransactionBodySchema,
   transactionListDataSchema,
+  transactionSchema,
   userPublicSchema,
   type CreatePaymentBody,
   type PatchPaymentBody,
+  type PatchTransactionBody,
   type SigninBody,
   type SignupBody,
 } from "@pending/api-contract";
@@ -58,6 +61,11 @@ export function createApiClient(getToken: () => string | null, onUnauthorized: (
         body: JSON.stringify(patchPaymentBodySchema.parse(body)),
       }),
     getPayment: (id: string) => request(`/api/v1/payments/${id}`, paymentAttemptSchema),
+    setTransactionBucket: (id: string, body: PatchTransactionBody) =>
+      request(`/api/v1/transactions/${id}`, transactionSchema, {
+        method: "PATCH",
+        body: JSON.stringify(patchTransactionBodySchema.parse(body)),
+      }),
     listTransactions: (cursor?: string, signal?: AbortSignal) => {
       const q = cursor ? `?cursor=${encodeURIComponent(cursor)}` : "";
       return request(`/api/v1/transactions${q}`, transactionListDataSchema, { signal });

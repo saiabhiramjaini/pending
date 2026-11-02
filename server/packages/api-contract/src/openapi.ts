@@ -11,10 +11,12 @@ import {
   healthDataSchema,
   listTransactionsQuerySchema,
   patchPaymentBodySchema,
+  patchTransactionBodySchema,
   paymentAttemptSchema,
   signinBodySchema,
   signupBodySchema,
   transactionListDataSchema,
+  transactionSchema,
   userPublicSchema,
 } from "./schemas";
 
@@ -111,6 +113,18 @@ registry.registerPath({
       description: "ok",
       content: { "application/json": { schema: success(transactionListDataSchema) } },
     },
+  },
+});
+
+registry.registerPath({
+  method: "patch",
+  path: "/api/v1/transactions/{id}",
+  request: {
+    params: z.object({ id: z.string().uuid() }),
+    body: { content: { "application/json": { schema: patchTransactionBodySchema } } },
+  },
+  responses: {
+    200: { description: "ok", content: { "application/json": { schema: success(transactionSchema) } } },
   },
 });
 

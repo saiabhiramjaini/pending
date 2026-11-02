@@ -9,7 +9,7 @@ export async function listAllTransactions(
   const cursors = new Set<string>();
   let cursor: string | undefined;
   do {
-    signal?.throwIfAborted();
+    if (signal?.aborted) throw new Error("History request cancelled");
     const page = await client.listTransactions(cursor, signal);
     items.push(...page.items);
     if (page.nextCursor === null) break;

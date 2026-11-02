@@ -67,6 +67,6 @@ Returning from the UPI app is **not** success. Never collect UPI PIN, OTP, bank 
 
 ## Philosophy
 
-1. Zero manual expense entry after a pay started in-app.
+1. Never retype a payment. The amount and merchant come from the QR; the user only taps a bucket, and a repeat payment to the same UPI ID preselects last time's.
 2. Do not replace existing UPI apps.
 3. Recording is the start; value is understand → predict → help.
