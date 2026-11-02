@@ -60,6 +60,11 @@ describe("layers", () => {
     expect(offenders(sourceFiles(SOURCE, ["lib/analytics.ts"]), /from "posthog-react-native"/g)).toEqual([]);
   });
 
+  // Nothing in the device runtime polyfills global crypto; bun tests have it, so they cannot catch this.
+  test("IDs come from expo-crypto, not global crypto", () => {
+    expect(offenders(sourceFiles(SOURCE), /\bcrypto\.\w+/g)).toEqual([]);
+  });
+
   test("API JSON is never cast", () => {
     expect(offenders(sourceFiles(SOURCE), /\.json\(\)[^\n]*\bas\s+[A-Z{]/g)).toEqual([]);
   });

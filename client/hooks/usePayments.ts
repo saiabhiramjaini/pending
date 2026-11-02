@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { randomUUID } from "expo-crypto";
 import { listLocalPayments, type LocalPayment, upsertLocalPayment } from "../lib/storage/payments";
 import { monthTotalIst, persistPaymentStatus } from "../lib/payments/records";
 import { useFocusEffect } from "expo-router";
@@ -65,6 +66,7 @@ export function usePaymentRecorder() {
   return {
     sessionLoading: status === "loading",
     signedIn: status === "ready",
+    newId: randomUUID,
     saveLocal: upsertLocalPayment,
     createRemote: createRemote.mutateAsync,
     patchRemote: patchRemote.mutateAsync,

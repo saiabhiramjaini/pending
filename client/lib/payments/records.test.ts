@@ -24,6 +24,7 @@ function recording(signedIn: boolean) {
   };
   const dependencies = {
     signedIn,
+    newId: () => "00000000-0000-4000-8000-000000000005",
     saveLocal: (row: LocalPayment) => { local.push(row); },
     createRemote: async (body: CreatePaymentBody) => { creates.push(body); return attempt; },
     patchRemote: async (input: { id: string; status: PaymentStatus }) => {
@@ -67,6 +68,7 @@ describe("payment recording", () => {
     const key = savedDraft.localId;
     state.dependencies.createRemote = create;
     await createPaymentRecord(savedDraft, "phonepe", state.dependencies, remember);
+    expect(key).toBe(state.dependencies.newId());
     expect(state.creates.map((body) => body.idempotencyKey)).toEqual([key!, key!]);
     expect(state.local).toEqual([]);
   });

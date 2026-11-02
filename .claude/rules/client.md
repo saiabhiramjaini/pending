@@ -23,7 +23,7 @@ Expo dev client with Expo Router. Screens compose hooks and `components/ui`; eve
 | `lib/upi/`, `lib/native/`, `modules/upi-handoff/`, `stores/` | See [`upi-payments.md`](upi-payments.md) | |
 | `lib/design/`, `global.css` | See [`design-system.md`](design-system.md) | |
 
-[`sourceGuards.test.ts`](../../client/sourceGuards.test.ts) fails on `fetch` outside `lib/api`, on native stores or `upi://` in screens, and on a primitive importing `lib/api`, `lib/storage`, `lib/upi`, `lib/native`, `hooks` or `stores`. A type-only import is allowed.
+[`sourceGuards.test.ts`](../../client/sourceGuards.test.ts) fails on `fetch` outside `lib/api`, on native stores or `upi://` in screens, on global `crypto` (use `expo-crypto`), and on a primitive importing `lib/api`, `lib/storage`, `lib/upi`, `lib/native`, `hooks` or `stores`. A type-only import is allowed.
 
 ## Use the locked library for each job
 

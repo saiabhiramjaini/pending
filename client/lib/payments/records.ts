@@ -4,6 +4,7 @@ import type { PaymentDraft } from "../../stores/paymentDraft";
 
 type RecordingDependencies = {
   signedIn: boolean;
+  newId: () => string;
   saveLocal: (row: LocalPayment) => void;
   createRemote: (body: CreatePaymentBody) => Promise<PaymentAttempt>;
   patchRemote: (input: { id: string; status: PaymentStatus }) => Promise<PaymentAttempt>;
@@ -15,7 +16,7 @@ export async function createPaymentRecord(
   dependencies: RecordingDependencies,
   rememberDraft: (draft: PaymentDraft) => void,
 ) {
-  const stable = { ...draft, localId: draft.localId ?? crypto.randomUUID() };
+  const stable = { ...draft, localId: draft.localId ?? dependencies.newId() };
   // Persist the retry key in the draft before any request can commit remotely.
   rememberDraft(stable);
   const now = new Date().toISOString();
