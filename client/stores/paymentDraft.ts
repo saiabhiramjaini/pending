@@ -9,6 +9,7 @@ export type PaymentDraft = {
   merchantName: string;
   amount: string;
   note?: string;
+  qr?: string;
   bucket?: string;
   upiApp?: string;
   upiAppName?: string;

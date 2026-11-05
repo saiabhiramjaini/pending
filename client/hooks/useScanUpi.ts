@@ -42,6 +42,7 @@ export function useScanUpi() {
         merchantName: parsed.merchantName,
         amount: parsed.amount ?? "",
         note: parsed.note,
+        qr: parsed.qr,
       });
       router.push("/payment");
     } catch (err) {

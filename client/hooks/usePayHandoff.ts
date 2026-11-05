@@ -128,6 +128,7 @@ export function usePayHandoff() {
         merchantName: draft.merchantName,
         amount: draft.amount,
         note: draft.note,
+        qr: draft.qr,
       });
       let result: PaymentStatus;
       try {

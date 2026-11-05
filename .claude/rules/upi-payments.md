@@ -29,6 +29,7 @@ We start the payment and record what we can honestly know. The user's PIN and th
 
 - Android lists packages for `upi://pay`, uses `startActivityForResult`, and maps SUCCESS, FAIL and empty.
 - iOS opens URL schemes, and the result is `unknown` until the user confirms.
+- **A scanned QR goes to the UPI app unchanged whenever the amount matches,** because UPI apps use fields we don't read, such as `tr`, `mc` and `sign`. A changed amount drops `sign`, which it would invalidate.
 - Debounce Pay with `PAY_DEBOUNCE_MS`, so a double tap cannot open two payments.
 - No manual VPA screen in v1.
 

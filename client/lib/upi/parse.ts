@@ -8,6 +8,7 @@ export type ParsedUpiQr = {
   currency: string;
   note?: string;
   tr?: string;
+  qr?: string;
 };
 
 export class UpiParseError extends Error {
@@ -30,17 +31,25 @@ function readParams(raw: string): URLSearchParams {
   throw new UpiParseError("Not a UPI payment QR");
 }
 
+// Whole rupees, written either way a QR may carry them: 100, 100.0 or 100.00.
+function wholeRupees(amount: string): string | null {
+  return /^[0-9]+(\.0{1,2})?$/.test(amount) ? amount.split(".")[0] : null;
+}
+
 export function parseUpiQr(raw: string): ParsedUpiQr {
   const params = readParams(raw);
   const vpa = params.get("pa")?.trim() ?? "";
   if (!vpa) {
     throw new UpiParseError("UPI ID missing");
   }
-  const amount = params.get("am")?.trim();
-  if (amount) {
-    if (!/^[0-9]+$/.test(amount)) {
+  const rawAmount = params.get("am")?.trim();
+  let amount: string | undefined;
+  if (rawAmount) {
+    const whole = wholeRupees(rawAmount);
+    if (!whole) {
       throw new UpiParseError("Amount must be whole rupees");
     }
+    amount = whole;
     const n = Number(amount);
     if (n < MIN_AMOUNT_RUPEES || n > MAX_AMOUNT_RUPEES) {
       throw new UpiParseError("Amount out of range");
@@ -53,6 +62,7 @@ export function parseUpiQr(raw: string): ParsedUpiQr {
     currency: (params.get("cu")?.trim() || "INR").toUpperCase(),
     note: params.get("tn")?.trim() || undefined,
     tr: params.get("tr")?.trim() || undefined,
+    qr: raw.trim().toLowerCase().startsWith("upi://pay") ? raw.trim() : undefined,
   };
 }
 
@@ -61,14 +71,27 @@ export function buildUpiPayUri(input: {
   merchantName: string;
   amount: string;
   note?: string;
+  qr?: string;
 }): string {
-  const params = new URLSearchParams();
-  params.set("pa", input.vpa);
-  params.set("pn", input.merchantName);
-  params.set("am", input.amount);
-  params.set("cu", "INR");
-  if (input.note) {
-    params.set("tn", input.note);
+  const amount = `${input.amount}.00`;
+  if (input.qr) {
+    // UPI apps use fields we don't read, such as tr, mc and sign, so a scanned link goes out as scanned.
+    const query = input.qr.indexOf("?") >= 0 ? input.qr.slice(input.qr.indexOf("?") + 1) : "";
+    const original = new URLSearchParams(query).get("am")?.trim();
+    if (original && wholeRupees(original) === input.amount) return input.qr;
+    // A changed amount would invalidate a merchant's signature, so it can't be kept.
+    const kept = query.split("&").filter((part) => part && !/^(am|sign)=/i.test(part));
+    if (!kept.some((part) => /^cu=/i.test(part))) kept.push("cu=INR");
+    return `upi://pay?${[...kept, `am=${amount}`].join("&")}`;
   }
-  return `upi://pay?${params.toString()}`;
+  const parts = [
+    `pa=${encodeURIComponent(input.vpa).replace(/%40/g, "@")}`,
+    `pn=${encodeURIComponent(input.merchantName)}`,
+    `am=${amount}`,
+    "cu=INR",
+  ];
+  if (input.note) {
+    parts.push(`tn=${encodeURIComponent(input.note)}`);
+  }
+  return `upi://pay?${parts.join("&")}`;
 }
