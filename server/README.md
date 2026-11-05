@@ -37,6 +37,15 @@ bun run start:node   # or: npx tsx src/index.ts
 - `POST/GET/PATCH /api/v1/payments`
 - `GET /api/v1/transactions`
 
+## Deployment
+
+Pushing to `main` runs the tests and, if they pass, builds `server/Dockerfile`, pushes the image to Artifact Registry and deploys it to Cloud Run (`pending-api` in project `d6vs-496512`, region `asia-southeast1`, next to the Neon database). See `.github/workflows/deploy.yml`. Tests live in `ci.yml`, which also runs on every pull request. To redeploy without a new commit, use **Run workflow** on the Deploy workflow in GitHub Actions.
+
+- GitHub Actions signs in with Workload Identity Federation, so no Google key is stored. Only `main` of this repo can deploy.
+- `DATABASE_URL` and `JWT_SECRET` come from Secret Manager (`pending-database-url`, `pending-jwt-secret`). Add a new version there to change one.
+- The pipeline does not change the database schema. Run `bun run db:push` yourself before merging a schema change.
+- First-time setup is `server/scripts/setup-gcp.sh`, which needs Owner access and billing enabled on the project.
+
 ## Verification
 
 Run `bun run typecheck` and `bun test` in both `server/` and `client/`.

@@ -1,8 +1,7 @@
-name: ci
+name: CI
 on:
   pull_request:
-  push:
-    branches: [main]
+  workflow_call: # deploy.yml runs these same tests before deploying.
 jobs:
   server:
     runs-on: ubuntu-latest

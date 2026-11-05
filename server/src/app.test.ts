@@ -1,6 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { bucketNameSchema, MAX_BUCKET_LENGTH } from "@pending/api-contract";
 import { createApp } from "./app";
+import { safeErrorSummary } from "./middlewares/errorHandler";
+
+test("production error logs never include query values", () => {
+  const err = new Error("Failed query: params: user@example.com,hashed-password", { cause: { code: "ENOTFOUND" } });
+  const logged = JSON.stringify(safeErrorSummary(err));
+  expect(logged).toContain("ENOTFOUND");
+  expect(logged).not.toContain("user@example.com");
+  expect(logged).not.toContain("hashed-password");
+});
 
 describe("bucket names", () => {
   test("are trimmed and limited to the contract length", () => {
